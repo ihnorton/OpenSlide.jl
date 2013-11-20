@@ -1,5 +1,5 @@
 module OpenSlide
 
-# package code goes here
+include("libopenslide.jl")
 
 end # module
