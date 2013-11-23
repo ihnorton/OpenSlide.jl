@@ -1,20 +1,3 @@
-#export
-#    get_property_names,
-#    get_property_value,
-#    can_open,
-#    openslide_open,
-#    get_level_count,
-#    close_slide,
-#    get_level0_dimensions,
-#    get_level_dimensions,
-#    get_level_downsample,
-#    get_best_level_for_downsample,
-#    read_region,
-#    get_associated_image_names,
-#    read_associated_image,
-#    get_error,
-#    openslide_version
-
 const los = "libopenslide"
 
 ################################################################################
@@ -34,9 +17,6 @@ function _rgbfromrowflat(data::Array{Uint8,1}, dims)
     @inbounds for i = 1:3
         output[:,i] = data[-(i-4):4:end]
     end
-    #output[:,3] = data[1:4:end]
-    #output[:,2] = data[2:4:end]
-    #output[:,1] = data[3:4:end]
     return reshape(output, dims...,3)
 end
 function _readstrings(buf::Ptr{Ptr{Uint8}})
