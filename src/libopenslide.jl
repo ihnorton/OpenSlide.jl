@@ -85,7 +85,7 @@ function get_level_dimensions(s::OSt, level::Int)
     ccall( (:openslide_get_level_dimensions, los),
             Void,
             (Ptr{openslide_t}, Int, Ptr{Cint}, Ptr{Cint}),
-            s, level, w, h)
+            convert(Ptr{openslide_t}, s), level, pointer(w), pointer(h))
     return [w,h]
 end
 
