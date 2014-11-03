@@ -1,4 +1,19 @@
-const los = "libopenslide"
+#TODO exports
+#    get_property_names,
+#    get_property_value,
+#    can_open,
+#    openslide_open,
+#    get_level_count,
+#    close_slide,
+#    get_level0_dimensions,
+#    get_level_dimensions,
+#    get_level_downsample,
+#    get_best_level_for_downsample,
+#    read_region,
+#    get_associated_image_names,
+#    read_associated_image,
+#    get_error,
+#    openslide_version
 
 ################################################################################
 

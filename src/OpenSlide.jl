@@ -1,5 +1,7 @@
 module OpenSlide
 
+include("../deps/deps.jl")
+
 export
     OpenSlideImage,
     AssociatedImage,
@@ -9,7 +11,6 @@ export
     properties,
     associated_images,
     read_associated
-
 
 immutable openslide_t end
 typealias OSt Ptr{openslide_t}
