@@ -27,14 +27,14 @@ const OPENSLIDE_PROPERTY_NAME_MPP_Y = "openslide.mpp-y"
 
 ################################################################################
 
-function _rgbfromrowflat(data::Array{Uint8,1}, dims)
-    output = zeros(Uint8, *(dims...),3)
+function _rgbfromrowflat(data::Array{UInt8,1}, dims)
+    output = zeros(UInt8, *(dims...),3)
     @inbounds for i = 1:3
         output[:,i] = data[-(i-4):4:end]
     end
     return reshape(output, dims...,3)
 end
-function _readstrings(buf::Ptr{Ptr{Uint8}})
+function _readstrings(buf::Ptr{Ptr{UInt8}})
     rv = Any[]
     i = 1 
     while (n = unsafe_load(buf,i)) != C_NULL
@@ -48,20 +48,20 @@ end
 
 function get_property_names(s::OSt)
     nms = ccall( (:openslide_get_property_names, los),
-                 Ptr{Ptr{Uint8}}, (OSt,), s)
+                 Ptr{Ptr{UInt8}}, (OSt,), s)
     _readstrings(nms)
 end
 
-function get_property_value(s::OSt, prop::ASCIIString)
-    bytestring( ccall( (:openslide_get_property_value, los), Ptr{Uint8}, (OSt, Ptr{Uint8}), s, prop))
+function get_property_value(s::OSt, prop::String)
+    bytestring( ccall( (:openslide_get_property_value, los), Ptr{UInt8}, (OSt, Ptr{UInt8}), s, prop))
 end
 
-function can_open(fname::ASCIIString)
-    ccall( (:openslide_can_open, los), Cint, (Ptr{Uint8},), fname) == 1 ? true : false
+function can_open(fname::String)
+    ccall( (:openslide_can_open, los), Cint, (Ptr{UInt8},), fname) == 1 ? true : false
 end
 
-function openslide_open(fname::ASCIIString)
-    ccall( (:openslide_open, los), Ptr{openslide_t}, (Ptr{Uint8},), fname)
+function openslide_open(fname::String)
+    ccall( (:openslide_open, los), Ptr{openslide_t}, (Ptr{UInt8},), fname)
 end
 
 function get_level_count(s::OSt)
@@ -75,7 +75,7 @@ end
 function get_level0_dimensions(s::OSt)
     w = Int64[0]
     h = Int64[0]
-    ccall( (:openslide_get_level0_dimensions, los), Void, (Ptr{openslide_t}, Ptr{Int64}, Ptr{Int64}), s, w, h)
+    ccall( (:openslide_get_level0_dimensions, los), Cvoid, (Ptr{openslide_t}, Ptr{Int64}, Ptr{Int64}), s, w, h)
     return [w, h]
 end
     
@@ -83,7 +83,7 @@ function get_level_dimensions(s::OSt, level::Int)
     w = Int[0]
     h = Int[0]
     ccall( (:openslide_get_level_dimensions, los),
-            Void,
+            Cvoid,
             (Ptr{openslide_t}, Int, Ptr{Cint}, Ptr{Cint}),
             convert(Ptr{openslide_t}, s), level, pointer(w), pointer(h))
     return [w,h]
@@ -105,44 +105,44 @@ end
 
 function _read_region(img::OSt, data, x, y, level, w, h)
     ccall( (:openslide_read_region, los),
-            Void,
+            Cvoid,
             (OSt, Ptr{Cint}, Int64, Int64, Int32, Int64, Int64),
             img, data, x, y, int32(level-1), w, h)
 end
 
 function read_region(img::OSt, x, y, level, w, h)
     # allocate memory to hold output
-    data = zeros(Uint32, w*h)
+    data = zeros(UInt32, w*h)
     _read_region(img, data, x, y, level, w, h)
-    return _rgbfromrowflat(reinterpret(Uint8,data), [w, h])
+    return _rgbfromrowflat(reinterpret(UInt8,data), [w, h])
 end
 
 function get_associated_image_names(s::OSt)
-    buf = ccall( (:openslide_get_associated_image_names, los), Ptr{Ptr{Uint8}}, (OSt,))
+    buf = ccall( (:openslide_get_associated_image_names, los), Ptr{Ptr{UInt8}}, (OSt,), s)
     _readstrings(buf)
 end    
 
-function get_associated_image_dimensions(s::OSt, name::ASCIIString)
+function get_associated_image_dimensions(s::OSt, name::String)
     w = h = Int64[0]
     ccall( (:openslide_get_associated_image_dimensions, los),
-            Void, (OSt, Ptr{Cchar}, Ptr{Clong}, Ptr{Clong}),
+            Cvoid, (OSt, Ptr{Cchar}, Ptr{Clong}, Ptr{Clong}),
             s, name, w, h)
     return [w,h]
 end
 
-function read_associated_image(img::OSt, name::ASCIIString, dims)
-    data = zeros(Uint32, *(dims...), 4)
-    ccall( (:openslide_read_associated_image, los), Void,
+function read_associated_image(img::OSt, name::String, dims)
+    data = zeros(UInt32, *(dims...), 4)
+    ccall( (:openslide_read_associated_image, los), Cvoid,
             (OSt, Ptr{Cchar}, Ptr{Cuint}),
             osptr, name, data)
     return _rgbfromrowflat(data, dims)
 end
 
 function get_error(img::OSt)
-    bytestring(ccall( (:openslide_get_error, los), Ptr{Uint8}, (OSt,), img))
+    bytestring(ccall( (:openslide_get_error, los), Ptr{UInt8}, (OSt,), img))
 end
 
 function openslide_version()
-    bytestring(ccall( (:openslide_get_version,los),Ptr{Uint8}, ()))
+    bytestring(ccall( (:openslide_get_version,los),Ptr{UInt8}, ()))
 end
 

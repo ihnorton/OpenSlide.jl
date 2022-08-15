@@ -1,6 +1,9 @@
 module OpenSlide
 
-include("../deps/deps.jl")
+#include("../deps/deps.jl")
+
+using Libdl
+los = Libdl.dlopen("libopenslide")
 
 export
     OpenSlideImage,
@@ -12,10 +15,10 @@ export
     associated_images,
     read_associated
 
-immutable openslide_t end
-typealias OSt Ptr{openslide_t}
+struct openslide_t end
+const OSt = Ptr{openslide_t}
 
-type OpenSlideImage
+struct OpenSlideImage
     file::String
     levels::Int
     leveldims
@@ -25,7 +28,7 @@ type OpenSlideImage
 end
 # TODO finalizer
 
-type AssociatedImage
+struct AssociatedImage
     name::String
     dims::Array{Int,1}
     primary::OpenSlideImage
@@ -35,7 +38,7 @@ end
 include("libopenslide.jl")
 ################################################################################
 
-function open_slide(file::ASCIIString)
+function open_slide(file::String)
     osptr = openslide_open(file)
     (osptr == C_NULL) && error("Unrecognized slide file: ", file)
     
@@ -63,7 +66,7 @@ function read_slide(img::OpenSlideImage; level = -1, origin = [0,0], extent = No
 end
 
 function properties(img::OpenSlideImage)
-    rv = Dict{ASCIIString,ASCIIString}()
+    rv = Dict{String,String}()
     for name in get_property_names(img.osptr)
         rv[name] = get_property_value(img.osptr,name)
     end
